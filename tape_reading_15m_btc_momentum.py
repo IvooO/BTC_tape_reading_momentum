@@ -76,47 +76,53 @@ def initialize_state():
 
 initialize_state()
 
-# --- UTILITY & STYLING FUNCTIONS (Google/Clean Style) ---
+# --- UTILITY & STYLING FUNCTIONS (Light Professional Theme) ---
 
 def get_status_styles(state):
-    """Returns CSS styles and icon for status indicators (Clean/Material Style)."""
+    """Returns CSS styles and icon for status indicators (Light/Professional Style)."""
     
-    # [BG Color, Text Color on BG, Default Text, CSS Class Name]
+    # [BG Color (status bar), Text Color on BG]
     styles = {
-        'buy': ('#34A853', '#FFFFFF', '⬆ BUY', 'state-buy'),    # Google Green
-        'sell': ('#EA4335', '#FFFFFF', '⬇ SELL', 'state-sell'),  # Google Red
-        'wait': ('#4285F4', '#FFFFFF', 'WAIT', 'state-wait'),    # Google Blue (Used for Technical setup)
-        'neutral': ('#F8D346', '#1F1F1F', 'WAITING', 'state-neutral'), # Caution Yellow (Used for Tape wait)
-        'tech_neutral': ('#F1F3F4', '#5F6368', 'WAITING', 'state-tech-neutral'), # Light Grey (Tech wait)
+        # High-contrast colors for active states
+        'buy': ('#00A859', '#FFFFFF'),    # Professional Green
+        'sell': ('#FF4500', '#FFFFFF'),  # Professional Red-Orange
+        'wait': ('#A0B0FF', '#1E1E1E'),    # Muted Blue (for Technical setup wait)
+        # Neutral states blend into the light card background 
+        'neutral': ('#F0F0F0', '#555555'), 
+        'tech_neutral': ('#F0F0F0', '#555555'),
     }
          
     return styles.get(state, styles['tech_neutral'])
 
 def render_indicator(title, text, state, is_tape=False):
-    """Renders a custom styled metric/indicator."""
+    """Renders a custom styled metric/indicator for the light theme."""
     
     if state == 'neutral':
         style_key = 'neutral' if is_tape else 'tech_neutral'
     else:
         style_key = state
 
-    bg_color, text_color, _, _ = get_status_styles(style_key)
+    bg_color, text_color = get_status_styles(style_key)
     
-    # Custom flicker style for active tape signals (using lighter colors for less distraction)
-    flicker_style = 'animation: flicker-green-google 0.2s infinite alternate;' if is_tape and state == 'buy' else \
-                    'animation: flicker-red-google 0.2s infinite alternate;' if is_tape and state == 'sell' else ''
+    # Custom flicker style for active tape signals 
+    flicker_style = 'animation: flicker-green-light 0.2s infinite alternate;' if is_tape and state == 'buy' else \
+                    'animation: flicker-red-light 0.2s infinite alternate;' if is_tape and state == 'sell' else ''
 
+    # Simplified structure that uses the card background for the indicator container
     markdown_content = f"""
     <div style="
-        background-color: #FFFFFF;
-        border: 1px solid #DADCE0;
-        border-radius: 8px; /* Rounded corners for material look */
+        background-color: #FFFFFF; /* Card background color */
+        border: 1px solid #E0E0E0; /* Light border */
+        border-radius: 6px; 
         padding: 10px;
         margin-top: 5px;
-        box-shadow: 0 1px 2px 0 rgba(60,64,67,0.1), 0 2px 6px 2px rgba(60,64,67,0.05); /* Subtle shadow */
+        box-shadow: none; 
+        min-height: 100px;
+        display: flex;
+        flex-direction: column;
     ">
-        <p style="color: #5F6368; font-size: 0.8rem; margin-bottom: 2px; font-weight: 500;">{title}</p>
-        <p style="
+        <p style="color: #757575; font-size: 0.8rem; margin-bottom: 5px; font-weight: 500; text-transform: uppercase;">{title}</p>
+        <div style="
             background-color: {bg_color}; 
             color: {text_color}; 
             font-weight: 700; 
@@ -124,8 +130,12 @@ def render_indicator(title, text, state, is_tape=False):
             border-radius: 4px; 
             text-align: center;
             font-size: 1.0rem;
+            flex-grow: 1; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
             {flicker_style}
-        ">{text}</p>
+        ">{text}</div>
     </div>
     """
     st.markdown(markdown_content, unsafe_allow_html=True)
@@ -298,9 +308,9 @@ def render_playbook_sidebar():
     """Renders the detailed trading playbook in the sidebar."""
     st.sidebar.markdown(
         """
-        <div style="padding: 15px; border-bottom: 1px solid #DADCE0; margin-bottom: 20px;">
-            <h2 style="color: #1F1F1F; font-size: 1.5rem; font-weight: bold; margin: 0;">Trading Playbook</h2>
-            <p style="color: #5F6368; font-size: 0.8rem; margin-top: 5px;">How the system generates signals.</p>
+        <div style="padding: 15px; border-bottom: 1px solid #E0E0E0; margin-bottom: 20px;">
+            <h2 style="color: #1E1E1E; font-size: 1.5rem; font-weight: bold; margin: 0;">Trading Playbook</h2>
+            <p style="color: #757575; font-size: 0.8rem; margin-top: 5px;">How the system generates signals.</p>
         </div>
         """, unsafe_allow_html=True
     )
@@ -345,68 +355,81 @@ def render_playbook_sidebar():
     )
 
 
-# --- STREAMLIT UI LAYOUT (Google/Clean Style) ---
+# --- STREAMLIT UI LAYOUT (Light Professional Style) ---
 
 def display_dashboard(latest_price, momentum_sum, momentum_bias, signals, time_remaining):
     """
-    Builds the main Streamlit UI using columns and containers.
-    Crucially, it uses signals.get() to safely access data and prevent KeyError.
+    Builds the main Streamlit UI using columns and containers with a light professional theme.
     """
     
     st.markdown("""
         <style>
-            /* Google/Material Inspired Theme */
+            /* --- Light Professional Theme Styling --- */
             .stApp { 
-                background-color: #F1F3F4; /* Light Gray Background */
-                color: #1F1F1F; 
-                font-family: 'Google Sans', 'Roboto', 'Arial', sans-serif;
+                background-color: #F9F9F9; /* Very Light Gray Background */
+                color: #1E1E1E; 
+                font-family: 'Inter', 'Roboto', 'Arial', sans-serif;
             }
-            /* Main Header Style (Clean White) */
+            /* Main Header Style (Clean Light) */
             .google-header {
-                background-color: white;
-                color: #1F1F1F; 
+                background-color: #FFFFFF; /* White Header */
+                color: #1E1E1E; 
                 padding: 15px 20px;
                 margin: -20px -20px 0px -20px; 
-                border-bottom: 1px solid #DADCE0; /* Light border */
-                box-shadow: 0 1px 2px 0 rgba(60,64,67,0.08); /* Subtle shadow */
+                border-bottom: 1px solid #E0E0E0; /* Light border */
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* Very subtle shadow */
             }
             .google-header h1 {
                 font-size: 1.8rem;
-                font-weight: 500; /* Lighter weight for clean look */
+                font-weight: 600;
                 margin: 0;
-                color: #1F1F1F;
+                color: #1E1E1E;
             }
 
-            /* Card styling (Material card look) */
+            /* Card styling (Pure White Card) */
             .card {
-                background-color: white;
-                border-radius: 8px;
+                background-color: #FFFFFF; /* Pure white card */
+                border-radius: 6px;
                 padding: 20px;
-                border: 1px solid #DADCE0; 
-                box-shadow: 0 1px 2px 0 rgba(60,64,67,0.1), 0 2px 6px 2px rgba(60,64,67,0.05);
+                border: 1px solid #E0E0E0; /* Minimal border for separation */
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
                 margin-bottom: 15px;
             }
             
             /* Metrics (Large Price Display) */
             .stMetric [data-testid="stMetricValue"] { 
-                color: #1F1F1F; 
+                color: #1E1E1E; /* Dark Text */
                 font-size: 2.5rem; 
                 font-weight: 800; 
             }
             .stMetric [data-testid="stMetricLabel"] { 
-                color: #5F6368; 
+                color: #757575; /* Muted label color */
                 font-weight: 500; 
             }
             
-            /* Flicker Animation (Google Colors) */
-            @keyframes flicker-green-google {
-                0%, 100% { background-color: #34A853; }
-                50% { background-color: #5CBF78; } 
+            /* Dataframe styling for light mode */
+            .stDataFrame {
+                border: 1px solid #E0E0E0 !important;
+                border-radius: 6px;
             }
-            @keyframes flicker-red-google {
-                0%, 100% { background-color: #EA4335; }
-                50% { background-color: #F3756A; } 
+            
+            /* Flicker Animation (Adjusted for Light Mode) */
+            @keyframes flicker-green-light {
+                0%, 100% { background-color: #00A859; }
+                50% { background-color: #38B077; } 
             }
+            @keyframes flicker-red-light {
+                0%, 100% { background-color: #FF4500; }
+                50% { background-color: #FF6633; } 
+            }
+            
+            /* Custom headers inside cards */
+            .card h2 {
+                color: #1E1E1E;
+                border-bottom: 1px solid #E0E0E0 !important;
+                padding-bottom: 10px;
+            }
+
         </style>
         
         <div class="google-header">
@@ -431,20 +454,19 @@ def display_dashboard(latest_price, momentum_sum, momentum_bias, signals, time_r
 
     with col_main:
         st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown(f'<h2 style="font-size: 1.4rem; font-weight: 600; color: #1F1F1F; margin-top: 0; border-bottom: 1px solid #DADCE0; padding-bottom: 10px;">M15 Trend Setup & Price Data</h2>', unsafe_allow_html=True)
+        st.markdown(f'<h2 style="font-size: 1.4rem; font-weight: 600; margin-top: 0;">M15 Trend Setup & Price Data</h2>', unsafe_allow_html=True)
         
-        c1, c2, c3 = st.columns(3)
+        # Increased width for the price column [2, 1, 1]
+        c1, c2, c3 = st.columns([2, 1, 1]) 
         with c1:
             st.metric("Kraken Last Trade Price", f"${latest_price:,.2f}")
         with c2:
-            # THIS LINE USES THE SAFE LOCAL VARIABLES
             render_indicator(
                 "M15 MACD Signal Status", 
                 macd_display_text, 
                 technical_signal
             )
         with c3:
-            # THIS LINE USES THE SAFE LOCAL VARIABLES
             render_indicator("Simulated RSI Level", rsi_text, technical_signal)
         
         momentum_state = 'Neutral'
@@ -454,7 +476,7 @@ def display_dashboard(latest_price, momentum_sum, momentum_bias, signals, time_r
             momentum_state = 'Strong DOWN'
             
         st.markdown(f"""
-            <p style="color: #5F6368; font-size: 0.85rem; margin-top: 1rem;">
+            <p style="color: #757575; font-size: 0.85rem; margin-top: 1rem;">
                 Recent **Price Momentum**: {momentum_state} ({momentum_sum:.2f}) - Based on last {MOMENTUM_WINDOW} minutes.
             </p>
         """, unsafe_allow_html=True)
@@ -462,36 +484,40 @@ def display_dashboard(latest_price, momentum_sum, momentum_bias, signals, time_r
 
     with col_signal:
         st.markdown('<div class="card" style="height: 100%; display: flex; flex-direction: column; justify-content: flex-start;">', unsafe_allow_html=True)
-        st.markdown(f'<h2 style="font-size: 1.4rem; font-weight: 600; color: #1F1F1F; margin-top: 0; border-bottom: 1px solid #DADCE0; padding-bottom: 10px;">CONFLUENCE SIGNAL</h2>', unsafe_allow_html=True)
+        st.markdown(f'<h2 style="font-size: 1.4rem; font-weight: 600; margin-top: 0;">CONFLUENCE SIGNAL</h2>', unsafe_allow_html=True)
         
-        final_bg, final_text_color, _, _ = get_status_styles(final_state)
+        final_bg, final_text_color = get_status_styles(final_state)
+        
+        # Use a slightly darker background for the signal box itself to make it pop less when neutral
+        final_box_bg = final_bg if final_state in ['buy', 'sell'] else '#F0F0F0'
         
         st.markdown(f"""
         <div style="
-            background-color: {final_bg}; 
+            background-color: {final_box_bg}; 
             color: {final_text_color}; 
             padding: 1.5rem 1rem; 
             border-radius: 6px; 
             text-align: center; 
             margin-top: 15px;
             font-weight: 700;
+            border: 1px solid {final_bg if final_state in ['buy', 'sell'] else '#E0E0E0'};
         ">
-            <p style="font-size: 1.1rem; font-weight: 500; margin-bottom: 5px;">Strategy Output</p>
-            <p style="font-size: 2.0rem; font-weight: 900; margin-top: 0; color: {final_text_color};">{final_signal}</p>
+            <p style="font-size: 1.1rem; font-weight: 500; margin-bottom: 5px; color: #757575;">Strategy Output</p>
+            <p style="font-size: 2.0rem; font-weight: 900; margin-top: 0; color: {final_text_color if final_state in ['buy', 'sell'] else '#1E1E1E'};">{final_signal}</p>
         </div>
         """, unsafe_allow_html=True)
         
-        time_color = '#EA4335' if time_remaining < 10 else '#34A853'
+        time_color = '#FF4500' if time_remaining < 10 else '#00A859'
         st.markdown(f'<p style="text-align: center; font-weight: bold; color: {time_color}; font-size: 1.1rem; margin-top: 10px;">🔄 Update in {int(time_remaining)}s</p>', unsafe_allow_html=True)
 
-        st.markdown('<p style="color: #999999; text-align: center; font-size: 0.7rem; margin-top: 10px;">M15 Setup MUST align with 1+ Tape Confirmation.</p>', unsafe_allow_html=True)
+        st.markdown('<p style="color: #AAAAAA; text-align: center; font-size: 0.7rem; margin-top: 10px;">M15 Setup MUST align with 1+ Tape Confirmation.</p>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
 
     # ----------------------------------------------------
     # ROW 2: Tape Confirmation Zone
     # ----------------------------------------------------
-    st.markdown(f'<h2 style="font-size: 1.2rem; font-weight: 600; color: #1F1F1F; margin-top: 0; padding-bottom: 5px; border-bottom: 1px solid #DADCE0;">REAL-TIME TAPE CONFIRMATION TRADES (4 Min Hold)</h2>', unsafe_allow_html=True)
+    st.markdown(f'<h2 style="font-size: 1.2rem; font-weight: 600; color: #1E1E1E; margin-top: 0; padding-bottom: 5px; border-bottom: 1px solid #E0E0E0;">REAL-TIME TAPE CONFIRMATION TRADES (4 Min Hold)</h2>', unsafe_allow_html=True)
     
     col_tape = st.columns(4)
     
@@ -518,7 +544,7 @@ def display_dashboard(latest_price, momentum_sum, momentum_bias, signals, time_r
     # ----------------------------------------------------
     st.markdown("""
         <div class="card" style="margin-top: 15px; padding-bottom: 5px;">
-            <h2 style="font-size: 1.2rem; font-weight: 600; color: #1F1F1F; margin-top: 0; padding-bottom: 5px; border-bottom: 1px solid #DADCE0;">Last 30 Signal History (Newest First)</h2>
+            <h2 style="font-size: 1.2rem; font-weight: 600; color: #1E1E1E; margin-top: 0;">Last 30 Signal History (Newest First)</h2>
         </div>
     """, unsafe_allow_html=True)
     
@@ -526,14 +552,19 @@ def display_dashboard(latest_price, momentum_sum, momentum_bias, signals, time_r
         df_history = pd.DataFrame(st.session_state.signal_history)
         
         def color_signals(val):
+            # Styling for the light mode dataframe
             if 'BUY' in val:
-                return 'background-color: #E6F4EA; color: #34A853; font-weight: bold' 
+                return 'background-color: #E6F7ED; color: #00A859; font-weight: bold' # Very Light Green Background
             elif 'SELL' in val:
-                return 'background-color: #FCE8E6; color: #EA4335; font-weight: bold'
-            return ''
+                return 'background-color: #FFF0E6; color: #FF4500; font-weight: bold' # Very Light Red Background
+            return 'color: #1E1E1E; background-color: #FFFFFF;' # Default White Card background
 
         st.dataframe(
-            df_history.style.applymap(color_signals, subset=['Final Signal']),
+            df_history.style.applymap(color_signals, subset=['Final Signal']).set_table_styles([
+                {'selector': 'th', 'props': [('background-color', '#F0F0F0'), ('color', '#1E1E1E')]},
+                {'selector': 'td', 'props': [('border', '1px solid #E0E0E0')]},
+                {'selector': '', 'props': [('color', '#1E1E1E'), ('background-color', '#FFFFFF')]}
+            ]),
             use_container_width=True,
             height=400
         )
